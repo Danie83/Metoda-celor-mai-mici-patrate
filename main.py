@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import Entry, ttk
+from typing import Text
 import matplotlib.pyplot as plt
 
 global window
@@ -48,12 +49,13 @@ class Entries:
 		entry2.grid(ipady=5, column=1, row = self.length)
 
 	def handle_delete_entry(self):
-	
-		if self.length > 0:
-			self.entries[self.length]['x'].destroy()
-			self.entries[self.length]['y'].destroy()
-			self.entries.popitem()
-
+		try:
+			if self.length > 0:
+				self.entries[self.length]['x'].grid_forget()
+				self.entries[self.length]['y'].grid_forget()
+				self.entries.popitem()
+				self.length -= 1
+		except KeyError:
 			self.length -= 1
 
 	def handle_validate_entries(self):
@@ -66,29 +68,43 @@ class Entries:
 				check = False
 			if check == False:
 				to_delete.append(j)
-
+		
 		for k in to_delete:
-
 			self.entries[k]['x'].grid_forget()
 			self.entries[k]['y'].grid_forget()
 			self.entries.pop(k)
-			self.length -= 1
-   
+
 		tmp_entries = {}
 
 		for i, points in enumerate(self.entries.values()):
 			j = i + 1
 			tmp_entries[j] = points
 		
+		while self.length > 0:
+			self.handle_delete_entry()
+   
 		self.entries = tmp_entries
-		print(self.entries)
+  
+		self.length = 0
+
+		for points in self.entries.values():
+			self.length += 1
+
+			entry1 = ttk.Entry(frame)
+			entry2 = ttk.Entry(frame)
+
+			entry1.grid(ipady=5,column=0, row = self.length)
+			entry1.insert(0,points['x'].get())
+			
+			entry2.grid(ipady=5, column=1, row = self.length)
+			entry2.insert(0,points['y'].get())	
 
 
 if __name__ == "__main__":
 	window = tk.Tk(className = 'metoda celor mai mici patrate')
 	window.geometry("500x500")
  
-	frame = ttk.Frame(master = window, padding = 5)
+	frame = ttk.Frame(window, padding = 5)
 	frame.grid()
 
 	entries = Entries()
