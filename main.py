@@ -1,6 +1,5 @@
 import tkinter as tk
-from tkinter import Entry, ttk
-from typing import Text
+from tkinter import Entry, ttk, messagebox
 import matplotlib.pyplot as plt
 
 global window
@@ -38,15 +37,19 @@ class Entries:
 	length = 0
 	
 	def handle_add_entry(self):
-		self.length += 1
+		if self.length < 11:
+			self.length += 1
 
-		entry1 = ttk.Entry(frame)
-		entry2 = ttk.Entry(frame)
+			entry1 = ttk.Entry(frame)
+			entry2 = ttk.Entry(frame)
 
-		self.entries.update({self.length: {"x": entry1, "y": entry2}})
+			self.entries.update({self.length: {"x": entry1, "y": entry2}})
 
-		entry1.grid(ipady=5,column=0, row = self.length)
-		entry2.grid(ipady=5, column=1, row = self.length)
+			entry1.grid(ipady=5,column=0, row = self.length)
+			entry2.grid(ipady=5, column=1, row = self.length)
+		else:
+			messagebox.showerror("Add entry error [1]", "Can't have more than 11 entries")
+		
 
 	def handle_delete_entry(self):
 		try:
@@ -55,6 +58,8 @@ class Entries:
 				self.entries[self.length]['y'].grid_forget()
 				self.entries.popitem()
 				self.length -= 1
+			elif self.length == 0:
+				messagebox.showerror("Delete entry error [2]", "You don't have any entry to delete")
 		except KeyError:
 			self.length -= 1
 
@@ -102,12 +107,14 @@ class Entries:
 
 if __name__ == "__main__":
 	window = tk.Tk(className = 'metoda celor mai mici patrate')
-	window.geometry("500x500")
+	window.geometry("400x400")
  
 	frame = ttk.Frame(window, padding = 5)
 	frame.grid()
 
 	entries = Entries()
+ 
+	entries.handle_add_entry()
  
 	ttk.Label(frame, text="X").grid(column = 0, row = 0)
 	ttk.Label(frame, text="Y").grid(column = 1, row = 0)
