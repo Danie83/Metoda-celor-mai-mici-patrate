@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import Entry, ttk, messagebox, filedialog
 from tkinter.constants import W
 import matplotlib.pyplot as plt
+import os
 
 global window
 global frame
@@ -120,13 +121,15 @@ class Entries:
 		except ValueError:
 			check = False
 		return check
- 
+
+	# https://pythonguides.com/python-tkinter-save-text-to-file/
 	def handle_load_entries(self):
     
 		while self.length > 0:
 			self.handle_delete_entry()
    
-		file_to_open = filedialog.askopenfilename(initialdir="", title="Select your file", filetypes=(("Txt Files", "*.txt"),))
+		files = [('Text Files', '*.txt')]
+		file_to_open = filedialog.askopenfilename(initialdir="", title="Select your file", filetypes=files, defaultextension= files)
   
 		self.length = 0
     
@@ -148,8 +151,22 @@ class Entries:
 					
 					entry2.grid(ipady=5, column=1, row = self.length)
 					entry2.insert(0,point[1])
+     
+					self.entries.update({self.length: {"x": entry1, "y": entry2}})
 		except FileNotFoundError:
 			messagebox.showerror("Load entries error [3]","File not found")
+   
+	def handle_save_entries(self):
+		files = [('Text Files', '*.txt')]
+		# Type of file is TextIOWrapper and not the actual path of the file
+		file = filedialog.asksaveasfile(title="Save your file", filetypes= files, defaultextension= files)
+
+		file_to_save_to = file.name
+		with open(file_to_save_to, "w") as f:
+			for point in self.entries.values():
+				content = "{x} {y}\n".format(x = point.get("x").get(), y = point.get("y").get())
+				f.write(content)
+
 
 	def handle_draw_plot(self):
 		plt.plot([1,2,3,4])
@@ -178,7 +195,8 @@ if __name__ == "__main__":
 	ttk.Button(frame, text = "New Entry", padding=5, width=20, command = entries.handle_add_entry).grid(column=2,row=1)
 	ttk.Button(frame, text = "Delete Entry", padding=5, width=20, command = entries.handle_delete_entry).grid(column=2,row=2)
 	ttk.Button(frame, text = "Load Entries", padding=5, width=20, command = entries.handle_load_entries).grid(column=2, row=3)
-	ttk.Button(frame, text = "Calculate", padding=5, width=20, command=entries.handle_validate_entries_and_draw_plot).grid(column=2,row=4)
+	ttk.Button(frame, text = "Save Entries", padding=5, width=20, command = entries.handle_save_entries).grid(column=2, row=4)
+	ttk.Button(frame, text = "Calculate", padding=5, width=20, command=entries.handle_validate_entries_and_draw_plot).grid(column=2,row=5)
  
 	window.mainloop()
 
