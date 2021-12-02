@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import Entry, ttk, messagebox
+from tkinter import Entry, ttk, messagebox, filedialog
+from tkinter.constants import W
 import matplotlib.pyplot as plt
 
 global window
@@ -21,7 +22,9 @@ def sol(input):
 	n = len(input)
 	m = (n * sumxy - sumx * sumy) / (n * sumxpatrat - sumx * sumx)
 	b = (sumy - m * sumx) / n
-	print("y = mx + b este " + "y = " + str(m) + " * x + " + str(b))
+	result = "y = mx + b equals to y = {m} * x + {b}".format(m = str(m), b = str(b))
+	#print("y = mx + b este " + "y = " + str(m) + " * x + " + str(b))
+	print(result)
 
 	def f(x): return m * x + b
 	return f
@@ -29,7 +32,12 @@ def sol(input):
 f = sol(input)
 
 for i in input:
-	print("x: " + str(i[0]) + " y: " + str(i[1]) + " f(x): " + str(f(i[0])) + " error [f(x) - y]: " + str((f(i[0]) - i[1])))
+	point = "x: {i0} y: {i1} f(x) = {fi0} error [f(x) - y]: {error}".format(i0 = str(i[0]), 
+																		i1 = str(i[1]),
+																		fi0 = str(f(i[0])),
+																		error = str((f(i[0]) - i[1])))
+	print(point)
+	#print("x: " + str(i[0]) + " y: " + str(i[1]) + " f(x): " + str(f(i[0])) + " error [f(x) - y]: " + str((f(i[0]) - i[1])))
 
 
 class Entries:
@@ -62,6 +70,8 @@ class Entries:
 				messagebox.showerror("Delete entry error [2]", "You don't have any entry to delete")
 		except KeyError:
 			self.length -= 1
+   
+	
 
 	def handle_validate_entries(self):
 		to_delete = []
@@ -103,7 +113,53 @@ class Entries:
 			
 			entry2.grid(ipady=5, column=1, row = self.length)
 			entry2.insert(0,points['y'].get())	
+	
+	def validate_single_entry(self, point):
+		try:
+			check = True if float(point[0]) and float(point[1]) else False
+		except ValueError:
+			check = False
+		return check
+ 
+	def handle_load_entries(self):
+    
+		while self.length > 0:
+			self.handle_delete_entry()
+   
+		file_to_open = filedialog.askopenfilename(initialdir="", title="Select your file", filetypes=(("Txt Files", "*.txt"),))
+  
+		self.length = 0
+    
+		try:
+			file = open(file_to_open, 'r')
+			lines = file.readlines()
+   
+			for line in lines:
+				line = line.strip("\n")
+				point = line.split(" ")
+				
+				if self.validate_single_entry(point) == True:
+					self.length += 1
+					entry1 = ttk.Entry(frame)
+					entry2 = ttk.Entry(frame)
 
+					entry1.grid(ipady=5,column=0, row = self.length)
+					entry1.insert(0,point[0])
+					
+					entry2.grid(ipady=5, column=1, row = self.length)
+					entry2.insert(0,point[1])
+		except FileNotFoundError:
+			messagebox.showerror("Load entries error [3]","File not found")
+
+	def handle_draw_plot(self):
+		plt.plot([1,2,3,4])
+		plt.ylabel('Y values')
+		plt.xlabel('X values')
+		plt.show()
+
+	def handle_validate_entries_and_draw_plot(self):
+		self.handle_validate_entries()
+		self.handle_draw_plot()
 
 if __name__ == "__main__":
 	window = tk.Tk(className = 'metoda celor mai mici patrate')
@@ -121,7 +177,8 @@ if __name__ == "__main__":
 
 	ttk.Button(frame, text = "New Entry", padding=5, width=20, command = entries.handle_add_entry).grid(column=2,row=1)
 	ttk.Button(frame, text = "Delete Entry", padding=5, width=20, command = entries.handle_delete_entry).grid(column=2,row=2)
-	ttk.Button(frame, text="Calculate", padding=5, width=20, command=entries.handle_validate_entries).grid(column=2,row=3)
+	ttk.Button(frame, text = "Load Entries", padding=5, width=20, command = entries.handle_load_entries).grid(column=2, row=3)
+	ttk.Button(frame, text = "Calculate", padding=5, width=20, command=entries.handle_validate_entries_and_draw_plot).grid(column=2,row=4)
  
 	window.mainloop()
 
