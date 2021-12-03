@@ -226,9 +226,9 @@ class Plot():
 			print(point)
 
 		print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-
 		plt.xlabel("X")
 		plt.ylabel("Y")
+		plt.clf()
 		plt.plot(x_points, y_points)
 		plt.scatter(x_points, y_points, color='black')
 		plt.plot(x_points, y_points, color='black')
@@ -243,8 +243,17 @@ class Plot():
 		plt.ylim([minimum - 1, maximum + 1])
   
 		plt.show()
-
-		
+  
+		del self.points_array[:]
+		del x_points[:]
+		del y_points[:]
+		del function_points[:]
+		del self.square_x[:]
+		del self.x_times_y[:]
+		self.sum_x = 0
+		self.sum_y = 0
+		self.sum_square_x = 0
+		self.sum_x_times_y = 0
 
 
 if __name__ == "__main__":
