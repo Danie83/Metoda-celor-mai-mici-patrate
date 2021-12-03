@@ -2,42 +2,45 @@ import tkinter as tk
 from tkinter import Entry, ttk, messagebox, filedialog
 from tkinter.constants import W
 import matplotlib.pyplot as plt
+from numpy import maximum, minimum
 
 global window
 global frame
 
-input = [[2,4], [3,5], [5,7], [7,10], [9,15]]
+# input = [[2,4], [3,5], [5,7], [7,10], [9,15]]
 
-def sol(input):
-	xpatrat = []
-	xy = []
-	for i in input:
-		xpatrat.append(i[0] * i[0])
-		xy.append(i[0] * i[1])
-	sumx = sum(i[0] for i in input)
-	sumy = sum(i[1] for i in input)
-	sumxpatrat = sum(i for i in xpatrat)
-	sumxy = sum(i for i in xy)
+# def sol(input):
+# 	xpatrat = []
+# 	xy = []
+# 	for i in input:
+# 		xpatrat.append(i[0] * i[0])
+# 		xy.append(i[0] * i[1])
+# 	sumx = sum(i[0] for i in input)
+# 	sumy = sum(i[1] for i in input)
+# 	sumxpatrat = sum(i for i in xpatrat)
+# 	sumxy = sum(i for i in xy)
 	
-	n = len(input)
-	m = (n * sumxy - sumx * sumy) / (n * sumxpatrat - sumx * sumx)
-	b = (sumy - m * sumx) / n
-	result = "y = mx + b equals to y = {m} * x + {b}".format(m = str(m), b = str(b))
-	#print("y = mx + b este " + "y = " + str(m) + " * x + " + str(b))
-	print(result)
+# 	n = len(input)
+# 	m = (n * sumxy - sumx * sumy) / (n * sumxpatrat - sumx * sumx)
+# 	b = (sumy - m * sumx) / n
+# 	result = "y = mx + b equals to y = {m} * x + {b}".format(m = str(m), b = str(b))
+# 	#print("y = mx + b este " + "y = " + str(m) + " * x + " + str(b))
+# 	print(result)
 
-	def f(x): return m * x + b
-	return f
+# 	def f(x): return m * x + b
+# 	return f
 
-f = sol(input)
+# f = sol(input)
 
-for i in input:
-	point = "x: {i0} y: {i1} f(x) = {fi0} error [f(x) - y]: {error}".format(i0 = str(i[0]), 
-																		i1 = str(i[1]),
-																		fi0 = str(f(i[0])),
-																		error = str((f(i[0]) - i[1])))
-	print(point)
-	#print("x: " + str(i[0]) + " y: " + str(i[1]) + " f(x): " + str(f(i[0])) + " error [f(x) - y]: " + str((f(i[0]) - i[1])))
+# for i in input:
+# 	point = "x: {i0} y: {i1} f(x) = {fi0} error [f(x) - y]: {error}".format(i0 = str(i[0]), 
+# 																		i1 = str(i[1]),
+# 																		fi0 = str(f(i[0])),
+# 																		error = str((f(i[0]) - i[1])))
+# 	print(point)
+# 	#print("x: " + str(i[0]) + " y: " + str(i[1]) + " f(x): " + str(f(i[0])) + " error [f(x) - y]: " + str((f(i[0]) - i[1])))
+
+#TODO remove duplicate points
 
 class Entries:
 	entries = dict()
@@ -103,16 +106,18 @@ class Entries:
 		for points in self.entries.values():
 			self.length += 1
 
-			entry1 = ttk.Entry(frame)
-			entry2 = ttk.Entry(frame)
+			entry1 = points['x']
+			entry2 = points['y']
 
 			entry1.grid(ipady=5,column=0, row = self.length)
-			entry1.insert(0,points['x'].get())
 			
 			entry2.grid(ipady=5, column=1, row = self.length)
-			entry2.insert(0,points['y'].get())
 
-		Plot.get_array(self.entries)
+		if self.length > 1:
+			plot = Plot()
+			plot.draw_plot(self.entries)
+		else:
+			messagebox.showerror("Calculate error [3]", "Can't calculate for only 1 point")
 	
 	def validate_single_entry(self, point):
 		try:
@@ -166,27 +171,75 @@ class Entries:
 				content = "{x} {y}\n".format(x = point.get("x").get(), y = point.get("y").get())
 				f.write(content)
 
-	def handle_draw_plot(self):
-		plt.plot([1,2,3,4])
-		plt.ylabel('Y values')
-		plt.xlabel('X values')
-		plt.show()
-
-	def handle_validate_entries_and_draw_plot(self):
-		self.handle_validate_entries()
-		self.handle_draw_plot()
-  
 class Plot():
-	points_array = []
-	def get_array(object):
+    
+	def __init__(self):
+		self.points_array = []
+		self.square_x = []
+		self.x_times_y = []
+		self.sum_x = 0
+		self.sum_y = 0
+		self.sum_square_x = 0
+		self.sum_x_times_y = 0
+  
+	def get_array(self, object):
 		array = []
 		for point in object.values():
-      
-			print(point)
 			array.append([float(point['x'].get()), float(point['y'].get())])
-		points_array = array
-		print(points_array)
+		return array
 	
+	def calculate(self):
+		for point in self.points_array:
+			self.square_x.append(point[0] * point[0])
+			self.x_times_y.append(point[0] * point[1])
+		self.sum_x = sum(point[0] for point in self.points_array)
+		self.sum_y = sum(point[1] for point in self.points_array)
+		self.sum_square_x = sum(value for value in self.square_x)
+		self.sum_x_times_y = sum(value for value in self.x_times_y)
+
+		n = len(self.points_array)
+		m = (n * self.sum_x_times_y - self.sum_x * self.sum_y) / (n * self.sum_square_x - self.sum_x * self.sum_x)
+		b = (self.sum_y - m * self.sum_x) / n
+		#result = "y = mx + b equals to y = {m} * x + {b}".format(m = str(m), b = str(b))
+		#print(result)
+		def least_square_liniar_calculator(x): return m * x + b
+  
+		return least_square_liniar_calculator
+
+	def draw_plot(self, object):
+		self.points_array = self.get_array(object)
+		linear_function = self.calculate()
+
+		x_points = []
+		y_points = []
+		print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+		for point in self.points_array:
+			#just checking the values in case something happens
+			x_points.append(point[0])
+			y_points.append(point[1])
+			point = "x: {point_0} y: {point_1} f(x) = {fi0} error (f(x) - y): {error}".format(point_0 = str(point[0]), 
+																		point_1 = str(point[1]),
+																		fi0 = str(linear_function(point[0])),
+																		error = str((linear_function(point[0]) - point[1])))
+			print(point)
+
+		print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+		plt.xlabel("X")
+		plt.ylabel("Y")
+		# plt.plot(x_points, y_points)
+		plt.scatter(x_points, y_points, color='black')
+	
+		maximum = max(max(x_points), max(y_points))
+		minimum = min(min(x_points), min(y_points))
+	
+		plt.xlim([minimum - 1, maximum + 1])
+		plt.ylim([minimum - 1, maximum + 1])
+  
+		plt.show()
+
+		
+
 
 if __name__ == "__main__":
 	window = tk.Tk(className = 'metoda celor mai mici patrate')
@@ -206,7 +259,7 @@ if __name__ == "__main__":
 	ttk.Button(frame, text = "Delete Entry", padding=5, width=20, command = entries.handle_delete_entry).grid(column=2,row=2)
 	ttk.Button(frame, text = "Load Entries", padding=5, width=20, command = entries.handle_load_entries).grid(column=2, row=3)
 	ttk.Button(frame, text = "Save Entries", padding=5, width=20, command = entries.handle_save_entries).grid(column=2, row=4)
-	ttk.Button(frame, text = "Calculate", padding=5, width=20, command=entries.handle_validate_entries_and_draw_plot).grid(column=2,row=5)
+	ttk.Button(frame, text = "Calculate", padding=5, width=20, command=entries.handle_validate_entries).grid(column=2,row=5)
  
 	window.mainloop()
 
