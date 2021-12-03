@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import Entry, ttk, messagebox, filedialog
 from tkinter.constants import W
 import matplotlib.pyplot as plt
-import os
 
 global window
 global frame
@@ -40,7 +39,6 @@ for i in input:
 	print(point)
 	#print("x: " + str(i[0]) + " y: " + str(i[1]) + " f(x): " + str(f(i[0])) + " error [f(x) - y]: " + str((f(i[0]) - i[1])))
 
-
 class Entries:
 	entries = dict()
 	length = 0
@@ -72,7 +70,6 @@ class Entries:
 		except KeyError:
 			self.length -= 1
    
-	
 
 	def handle_validate_entries(self):
 		to_delete = []
@@ -113,7 +110,9 @@ class Entries:
 			entry1.insert(0,points['x'].get())
 			
 			entry2.grid(ipady=5, column=1, row = self.length)
-			entry2.insert(0,points['y'].get())	
+			entry2.insert(0,points['y'].get())
+
+		Plot.get_array(self.entries)
 	
 	def validate_single_entry(self, point):
 		try:
@@ -167,7 +166,6 @@ class Entries:
 				content = "{x} {y}\n".format(x = point.get("x").get(), y = point.get("y").get())
 				f.write(content)
 
-
 	def handle_draw_plot(self):
 		plt.plot([1,2,3,4])
 		plt.ylabel('Y values')
@@ -177,6 +175,18 @@ class Entries:
 	def handle_validate_entries_and_draw_plot(self):
 		self.handle_validate_entries()
 		self.handle_draw_plot()
+  
+class Plot():
+	points_array = []
+	def get_array(object):
+		array = []
+		for point in object.values():
+      
+			print(point)
+			array.append([float(point['x'].get()), float(point['y'].get())])
+		points_array = array
+		print(points_array)
+	
 
 if __name__ == "__main__":
 	window = tk.Tk(className = 'metoda celor mai mici patrate')
