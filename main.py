@@ -212,11 +212,13 @@ class Plot():
 
 		x_points = []
 		y_points = []
+		function_points = []
 		print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 		for point in self.points_array:
 			#just checking the values in case something happens
 			x_points.append(point[0])
 			y_points.append(point[1])
+			function_points.append(linear_function(point[0]))
 			point = "x: {point_0} y: {point_1} f(x) = {fi0} error (f(x) - y): {error}".format(point_0 = str(point[0]), 
 																		point_1 = str(point[1]),
 																		fi0 = str(linear_function(point[0])),
@@ -227,11 +229,15 @@ class Plot():
 
 		plt.xlabel("X")
 		plt.ylabel("Y")
-		# plt.plot(x_points, y_points)
+		plt.plot(x_points, y_points)
 		plt.scatter(x_points, y_points, color='black')
-	
+		plt.plot(x_points, y_points, color='black')
+
 		maximum = max(max(x_points), max(y_points))
 		minimum = min(min(x_points), min(y_points))
+
+		plt.scatter(x_points, function_points, color='red')
+		plt.plot(x_points, function_points, color='red')
 	
 		plt.xlim([minimum - 1, maximum + 1])
 		plt.ylim([minimum - 1, maximum + 1])
