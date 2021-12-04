@@ -1,46 +1,11 @@
 import tkinter as tk
-from tkinter import Entry, ttk, messagebox, filedialog
+from tkinter import ttk, messagebox, filedialog
 from tkinter.constants import W
 import matplotlib.pyplot as plt
-from numpy import maximum, minimum
+from numpy import equal, maximum, minimum
 
 global window
 global frame
-
-# input = [[2,4], [3,5], [5,7], [7,10], [9,15]]
-
-# def sol(input):
-# 	xpatrat = []
-# 	xy = []
-# 	for i in input:
-# 		xpatrat.append(i[0] * i[0])
-# 		xy.append(i[0] * i[1])
-# 	sumx = sum(i[0] for i in input)
-# 	sumy = sum(i[1] for i in input)
-# 	sumxpatrat = sum(i for i in xpatrat)
-# 	sumxy = sum(i for i in xy)
-	
-# 	n = len(input)
-# 	m = (n * sumxy - sumx * sumy) / (n * sumxpatrat - sumx * sumx)
-# 	b = (sumy - m * sumx) / n
-# 	result = "y = mx + b equals to y = {m} * x + {b}".format(m = str(m), b = str(b))
-# 	#print("y = mx + b este " + "y = " + str(m) + " * x + " + str(b))
-# 	print(result)
-
-# 	def f(x): return m * x + b
-# 	return f
-
-# f = sol(input)
-
-# for i in input:
-# 	point = "x: {i0} y: {i1} f(x) = {fi0} error [f(x) - y]: {error}".format(i0 = str(i[0]), 
-# 																		i1 = str(i[1]),
-# 																		fi0 = str(f(i[0])),
-# 																		error = str((f(i[0]) - i[1])))
-# 	print(point)
-# 	#print("x: " + str(i[0]) + " y: " + str(i[1]) + " f(x): " + str(f(i[0])) + " error [f(x) - y]: " + str((f(i[0]) - i[1])))
-
-#TODO remove duplicate points
 
 class Entries:
 	entries = dict()
@@ -76,14 +41,23 @@ class Entries:
 
 	def handle_validate_entries(self):
 		to_delete = []
+		duplicates = []
 		for i,points in enumerate(self.entries.values()):
 			j = i + 1
 			try:
 				check = True if float(points.get("x").get()) and float(points.get("y").get()) else False
+				if check == True:
+					for k , values in enumerate(self.entries.values()):
+						m = k + 1
+						if i != k and i < k:
+							if points.get("x").get() == values.get("x").get() and points.get("y").get() == values.get("y").get():
+								duplicates.append(m)
 			except ValueError:
 				check = False
 			if check == False:
 				to_delete.append(j)
+		
+		to_delete = to_delete + list(set(duplicates))
 		
 		for k in to_delete:
 			self.entries[k]['x'].grid_forget()
@@ -200,8 +174,7 @@ class Plot():
 		n = len(self.points_array)
 		m = (n * self.sum_x_times_y - self.sum_x * self.sum_y) / (n * self.sum_square_x - self.sum_x * self.sum_x)
 		b = (self.sum_y - m * self.sum_x) / n
-		#result = "y = mx + b equals to y = {m} * x + {b}".format(m = str(m), b = str(b))
-		#print(result)
+
 		def least_square_liniar_calculator(x): return m * x + b
   
 		return least_square_liniar_calculator
