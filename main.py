@@ -49,7 +49,7 @@ class Entries:
 				if check == True:
 					for k , values in enumerate(self.entries.values()):
 						m = k + 1
-						if i != k and i < k:
+						if i != k and i < k and m not in duplicates:
 							if points.get("x").get() == values.get("x").get() and points.get("y").get() == values.get("y").get():
 								duplicates.append(m)
 			except ValueError:
@@ -90,8 +90,10 @@ class Entries:
 		if self.length > 1:
 			plot = Plot()
 			plot.draw_plot(self.entries)
+		elif self.length == 0:
+			messagebox.showerror("Calculate error [3]", "There are no points to calculate")
 		else:
-			messagebox.showerror("Calculate error [3]", "Can't calculate for only 1 point")
+			messagebox.showerror("Calculate error [4]", "Can't calculate for only 1 point")
 	
 	def validate_single_entry(self, point):
 		try:
