@@ -25,7 +25,6 @@ class Entries:
 		else:
 			messagebox.showerror("Add entry error [1]", "Can't have more than 11 entries")
 		
-
 	def handle_delete_entry(self):
 		try:
 			if self.length > 0:
@@ -38,42 +37,41 @@ class Entries:
 		except KeyError:
 			self.length -= 1
    
-
 	def handle_validate_entries(self):
 		to_delete = []
 		duplicates = []
-		for i,points in enumerate(self.entries.values()):
-			j = i + 1
+		for position, points in enumerate(self.entries.values()):
+			delete_candidate = position + 1
 			try:
 				check = True if float(points.get("x").get()) and float(points.get("y").get()) else False
 				if check == True:
-					for k , values in enumerate(self.entries.values()):
-						m = k + 1
-						if i != k and i < k and m not in duplicates:
+					for element, values in enumerate(self.entries.values()):
+						duplicate_candidate = element + 1
+						if position != element and position < element and duplicate_candidate not in duplicates:
 							if points.get("x").get() == values.get("x").get() and points.get("y").get() == values.get("y").get():
-								duplicates.append(m)
+								duplicates.append(duplicate_candidate)
 			except ValueError:
 				check = False
 			if check == False:
-				to_delete.append(j)
+				to_delete.append(delete_candidate)
 		
 		to_delete = to_delete + list(set(duplicates))
 		
-		for k in to_delete:
-			self.entries[k]['x'].grid_forget()
-			self.entries[k]['y'].grid_forget()
-			self.entries.pop(k)
+		for element in to_delete:
+			self.entries[element]['x'].grid_forget()
+			self.entries[element]['y'].grid_forget()
+			self.entries.pop(element)
 
-		tmp_entries = {}
+		temporary_entries = {}
 
-		for i, points in enumerate(self.entries.values()):
-			j = i + 1
-			tmp_entries[j] = points
+		for position, points in enumerate(self.entries.values()):
+			delete_candidate = position + 1
+			temporary_entries[delete_candidate] = points
 		
 		while self.length > 0:
 			self.handle_delete_entry()
    
-		self.entries = tmp_entries
+		self.entries = temporary_entries
   
 		self.length = 0
 
@@ -127,10 +125,10 @@ class Entries:
 					entry2 = ttk.Entry(frame)
 
 					entry1.grid(ipady=5,column=0, row = self.length)
-					entry1.insert(0,point[0])
+					entry1.insert(0, point[0])
 					
 					entry2.grid(ipady=5, column=1, row = self.length)
-					entry2.insert(0,point[1])
+					entry2.insert(0, point[1])
      
 					self.entries.update({self.length: {"x": entry1, "y": entry2}})
 		except FileNotFoundError:
@@ -151,12 +149,8 @@ class Plot():
     
 	def __init__(self):
 		self.points_array = []
-		self.square_x = []
-		self.x_times_y = []
-		self.sum_x = 0
-		self.sum_y = 0
-		self.sum_square_x = 0
-		self.sum_x_times_y = 0
+		self.m = 0
+		self.b = 0
   
 	def get_array(self, object):
 		array = []
@@ -165,19 +159,21 @@ class Plot():
 		return array
 	
 	def calculate(self):
+		square_x = []
+		x_times_y = []
 		for point in self.points_array:
-			self.square_x.append(point[0] * point[0])
-			self.x_times_y.append(point[0] * point[1])
-		self.sum_x = sum(point[0] for point in self.points_array)
-		self.sum_y = sum(point[1] for point in self.points_array)
-		self.sum_square_x = sum(value for value in self.square_x)
-		self.sum_x_times_y = sum(value for value in self.x_times_y)
+			square_x.append(point[0] * point[0])
+			x_times_y.append(point[0] * point[1])
+		sum_x = sum(point[0] for point in self.points_array)
+		sum_y = sum(point[1] for point in self.points_array)
+		sum_square_x = sum(value for value in square_x)
+		sum_x_times_y = sum(value for value in x_times_y)
 
 		n = len(self.points_array)
-		m = (n * self.sum_x_times_y - self.sum_x * self.sum_y) / (n * self.sum_square_x - self.sum_x * self.sum_x)
-		b = (self.sum_y - m * self.sum_x) / n
+		self.m = (n * sum_x_times_y - sum_x * sum_y) / (n * sum_square_x - sum_x * sum_x)
+		self.b = (sum_y - self.m * sum_x) / n
 
-		def least_square_liniar_calculator(x): return m * x + b
+		def least_square_liniar_calculator(x): return self.m * x + self.b
   
 		return least_square_liniar_calculator
 
@@ -188,7 +184,9 @@ class Plot():
 		x_points = []
 		y_points = []
 		function_points = []
+		function_to_title = "{m} * x + {b}".format(m = round(self.m, 4) , b = round(self.b, 4))
 		print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+		print("Function is {function}".format(function = function_to_title))
 		for point in self.points_array:
 			#just checking the values in case something happens
 			x_points.append(point[0])
@@ -204,18 +202,25 @@ class Plot():
 		plt.xlabel("X")
 		plt.ylabel("Y")
 		plt.clf()
+		plt.title(function_to_title)
 		plt.plot(x_points, y_points)
 		plt.scatter(x_points, y_points, color='black')
-		plt.plot(x_points, y_points, color='black')
+		plt.plot(x_points, y_points, color='black', label='Line between points')
 
 		maximum = max(max(x_points), max(y_points))
 		minimum = min(min(x_points), min(y_points))
 
 		plt.scatter(x_points, function_points, color='red')
-		plt.plot(x_points, function_points, color='red')
-	
+		plt.plot(x_points, function_points, color='red', label='Function line')
+  
+		plt.plot([x_points[0], x_points[0]], [y_points[0], function_points[0]], linestyle= 'dashed', color='blue', label="Error")
+		for i in range(1, len(x_points)):
+			plt.plot([x_points[i], x_points[i]], [y_points[i], function_points[i]], linestyle= 'dashed', color='blue')
+  
 		plt.xlim([minimum - 1, maximum + 1])
 		plt.ylim([minimum - 1, maximum + 1])
+
+		plt.legend()
   
 		plt.show()
   
@@ -223,17 +228,11 @@ class Plot():
 		del x_points[:]
 		del y_points[:]
 		del function_points[:]
-		del self.square_x[:]
-		del self.x_times_y[:]
-		self.sum_x = 0
-		self.sum_y = 0
-		self.sum_square_x = 0
-		self.sum_x_times_y = 0
-
 
 if __name__ == "__main__":
 	window = tk.Tk(className = 'metoda celor mai mici patrate')
 	window.geometry("400x400")
+	window.resizable(width=False, height=False)
  
 	frame = ttk.Frame(window, padding = 5)
 	frame.grid()
