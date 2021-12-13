@@ -12,7 +12,7 @@ class Entries:
 	length = 0
 	
 	def handle_add_entry(self):
-		if self.length < 11:
+		if self.length < 24:
 			self.length += 1
 
 			entry1 = ttk.Entry(frame)
@@ -20,10 +20,13 @@ class Entries:
 
 			self.entries.update({self.length: {"x": entry1, "y": entry2}})
 
-			entry1.grid(ipady=5,column=0, row = self.length)
+			entry1.grid(ipady=5, column=0, row = self.length)
 			entry2.grid(ipady=5, column=1, row = self.length)
+   
+			return True
 		else:
-			messagebox.showerror("Add entry error [1]", "Can't have more than 11 entries")
+			messagebox.showerror("Add entry error [1]", "Can't have more than 24 entries")
+			return False
 		
 	def handle_delete_entry(self):
 		try:
@@ -170,7 +173,11 @@ class Plot():
 		sum_x_times_y = sum(value for value in x_times_y)
 
 		n = len(self.points_array)
-		self.m = (n * sum_x_times_y - sum_x * sum_y) / (n * sum_square_x - sum_x * sum_x)
+		try:
+			self.m = (n * sum_x_times_y - sum_x * sum_y) / (n * sum_square_x - sum_x * sum_x)
+		except ZeroDivisionError:
+			pass
+		
 		self.b = (sum_y - self.m * sum_x) / n
 
 		def least_square_liniar_calculator(x): return self.m * x + self.b
@@ -184,7 +191,11 @@ class Plot():
 		x_points = []
 		y_points = []
 		function_points = []
-		function_to_title = "{m} * x + {b}".format(m = round(self.m, 4) , b = round(self.b, 4))
+		if type(self.m) == int:
+			function_to_title = "x = {point} [note: x, not y]".format(point = self.points_array[0][0])
+		else:
+			function_to_title = "f(x) = {m} * x + {b}".format(m = round(self.m, 4) , b = round(self.b, 4))
+   
 		print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 		print("Function is {function}".format(function = function_to_title))
 		for point in self.points_array:
@@ -197,8 +208,8 @@ class Plot():
 																		fi0 = str(linear_function(point[0])),
 																		error = str((linear_function(point[0]) - point[1])))
 			print(point)
-
 		print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+  
 		plt.xlabel("X")
 		plt.ylabel("Y")
 		plt.clf()
@@ -210,7 +221,6 @@ class Plot():
 		maximum = max(max(x_points), max(y_points))
 		minimum = min(min(x_points), min(y_points))
 
-		plt.scatter(x_points, function_points, color='red')
 		plt.plot(x_points, function_points, color='red', label='Function line')
   
 		plt.plot([x_points[0], x_points[0]], [y_points[0], function_points[0]], linestyle= 'dashed', color='blue', label="Error")
@@ -225,14 +235,9 @@ class Plot():
 		plt.show()
   
 		del self.points_array[:]
-		del x_points[:]
-		del y_points[:]
-		del function_points[:]
 
 if __name__ == "__main__":
 	window = tk.Tk(className = 'metoda celor mai mici patrate')
-	window.geometry("400x400")
-	window.resizable(width=False, height=False)
  
 	frame = ttk.Frame(window, padding = 5)
 	frame.grid()
