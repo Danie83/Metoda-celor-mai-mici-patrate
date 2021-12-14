@@ -117,12 +117,13 @@ class Entries:
 		try:
 			file = open(file_to_open, 'r')
 			lines = file.readlines()
-   
+			invalid_lines = 0
 			for line in lines:
-				line = line.strip("\n")
-				point = line.split(" ")
+				line = line.strip()
+    
+				point = line.split()
 				
-				if self.validate_single_entry(point) == True:
+				if len(point) == 2 and self.length < 24 and self.validate_single_entry(point) == True:
 					self.length += 1
 					entry1 = ttk.Entry(frame)
 					entry2 = ttk.Entry(frame)
@@ -134,8 +135,14 @@ class Entries:
 					entry2.insert(0, point[1])
      
 					self.entries.update({self.length: {"x": entry1, "y": entry2}})
+				else:
+					invalid_lines += 1
 		except FileNotFoundError:
-			messagebox.showerror("Load entries error [3]","File not found")
+			messagebox.showerror("Load entries error [4]","File not found")
+		if invalid_lines > 0:
+			messagebox.showerror("Loading entries error [5]", "Invalid data found: only loaded the valid data. Check the file again if you want to load all the data")
+		if self.length == 24:
+			messagebox.showerror("Loading entries limit [6]", "Entries limit reached: 24")
    
 	def handle_save_entries(self):
 		files = [('Text Files', '*.txt')]
@@ -196,10 +203,10 @@ class Plot():
 		else:
 			function_to_title = "f(x) = {m} * x + {b}".format(m = round(self.m, 4) , b = round(self.b, 4))
    
+		#just checking the values in case something happens
 		print("->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 		print("Function is {function}".format(function = function_to_title))
 		for point in self.points_array:
-			#just checking the values in case something happens
 			x_points.append(point[0])
 			y_points.append(point[1])
 			function_points.append(linear_function(point[0]))
@@ -244,6 +251,7 @@ if __name__ == "__main__":
 
 	entries = Entries()
  
+	entries.handle_add_entry()
 	entries.handle_add_entry()
  
 	ttk.Label(frame, text="X").grid(column = 0, row = 0)
