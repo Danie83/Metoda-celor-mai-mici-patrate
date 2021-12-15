@@ -8,8 +8,9 @@ global window
 global frame
 
 class Entries:
-	entries = dict()
-	length = 0
+	def __init__(self):
+		self.entries = dict()
+		self.length = 0
 	
 	def handle_add_entry(self):
 		if self.length < 24:
@@ -43,10 +44,12 @@ class Entries:
 	def handle_validate_entries(self):
 		to_delete = []
 		duplicates = []
+		check = False
 		for position, points in enumerate(self.entries.values()):
 			delete_candidate = position + 1
 			try:
-				check = True if float(points.get("x").get()) and float(points.get("y").get()) else False
+				if float(points.get("x").get()) and float(points.get("y").get()):
+					check = True
 				if check == True:
 					for element, values in enumerate(self.entries.values()):
 						duplicate_candidate = element + 1
@@ -75,8 +78,6 @@ class Entries:
 			self.handle_delete_entry()
    
 		self.entries = temporary_entries
-  
-		self.length = 0
 
 		for points in self.entries.values():
 			self.length += 1
@@ -97,30 +98,30 @@ class Entries:
 			messagebox.showerror("Calculate error [4]", "Can't calculate for only 1 point")
 	
 	def validate_single_entry(self, point):
+		check = False
 		try:
-			check = True if float(point[0]) and float(point[1]) else False
+			if float(point[0]) and float(point[1]):
+				check = True
 		except ValueError:
-			check = False
+			pass
 		return check
 
 	# https://pythonguides.com/python-tkinter-save-text-to-file/
 	def handle_load_entries(self):
-    
+	
 		while self.length > 0:
 			self.handle_delete_entry()
    
 		files = [('Text Files', '*.txt')]
 		file_to_open = filedialog.askopenfilename(initialdir="", title="Select your file", filetypes=files, defaultextension= files)
-  
-		self.length = 0
-    
+	
 		try:
 			file = open(file_to_open, 'r')
 			lines = file.readlines()
 			invalid_lines = 0
 			for line in lines:
 				line = line.strip()
-    
+	
 				point = line.split()
 				
 				if len(point) == 2 and self.length < 24 and self.validate_single_entry(point) == True:
@@ -133,7 +134,7 @@ class Entries:
 					
 					entry2.grid(ipady=5, column=1, row = self.length)
 					entry2.insert(0, point[1])
-     
+	 
 					self.entries.update({self.length: {"x": entry1, "y": entry2}})
 				else:
 					invalid_lines += 1
@@ -156,7 +157,7 @@ class Entries:
 				f.write(content)
 
 class Plot():
-    
+	
 	def __init__(self):
 		self.points_array = []
 		self.m = 0
