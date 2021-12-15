@@ -44,7 +44,7 @@ class Entries:
 	def handle_validate_entries(self):
 		to_delete = []
 		duplicates = []
-		check = False
+		check = True
 		for position, points in enumerate(self.entries.values()):
 			delete_candidate = position + 1
 			try:
