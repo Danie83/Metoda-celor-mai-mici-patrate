@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
-from tkinter.constants import W
+
 import matplotlib.pyplot as plt
-from numpy import equal, maximum, minimum
+
 
 global window
 global frame
